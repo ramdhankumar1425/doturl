@@ -7,7 +7,10 @@
 		"packages/*"
 	],
 	"scripts": {
-		"build:types": "npm run build --workspace=types"
+		"build:types": "npm run build --workspace=types",
+		"build:web": "npm run build --workspace=web",
+		"build:api": "npm run build --workspace=api",
+		"start:api": "npm run start --workspace=api"
 	},
 	"author": {
 		"name": "Ramdhan Kumar",
