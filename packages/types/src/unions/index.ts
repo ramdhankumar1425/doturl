@@ -1,0 +1,28 @@
+export type ErrorType =
+	// Generic Errors
+	| "UNAUTHORIZED" // 401
+	| "NOT_FOUND" // 404
+	| "BAD_REQUEST" // 400
+	| "FORBIDDEN" // 403
+	| "CONFLICT" // 409
+	| "INTERNAL_SERVER_ERROR" // 500
+	| "NOT_IMPLEMENTED"
+	| "VALIDATION_ERROR" // 422
+	| "TOO_MANY_REQUESTS" // 429
+	| "REFRESH_TOKEN_EXPIRED" // 401
+	| "REFRESH_TOKEN_INVALID" // 401
+	| "ACCESS_TOKEN_EXPIRED" // 401
+	| "ACCESS_TOKEN_INVALID"; // 401
+
+export type StatusCodeType =
+	| 200
+	| 201
+	| 400
+	| 401
+	| 403
+	| 404
+	| 409
+	| 422
+	| 429
+	| 500
+	| 501;

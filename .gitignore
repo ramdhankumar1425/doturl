@@ -1,0 +1,44 @@
+# Node modules
+**/node_modules/
+**/npm-debug.log*
+**/yarn-error.log*
+
+# Expo specific
+**/expo-debug.log
+**/.expo/
+**/.expo-shared/
+**/web-build/
+**/dist/
+**/android/
+**/ios/
+**/build/
+
+# macOS
+.DS_Store
+
+# VSCode
+.vscode/
+
+# Environment files
+**/.env
+**/.env.*
+
+# Logs
+**/logs/
+**/*.log
+
+# Coverage
+**/coverage/
+
+# Express server build artifacts
+**/dist/
+**/build/
+**/*.tsbuildinfo
+
+# Misc
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.idea/
+*.sublime-workspace
+*.sublime-project

@@ -1,0 +1,18 @@
+{
+	"name": "repo",
+	"version": "1.0.0",
+	"private": "true",
+	"workspaces": [
+		"apps/*",
+		"packages/*"
+	],
+	"scripts": {
+		"build:types": "npm run build --workspace=types"
+	},
+	"author": {
+		"name": "Ramdhan Kumar",
+		"email": "dev.ramdhankumar1425@gmail.com"
+	},
+	"license": "ISC",
+	"description": "Url shortner"
+}
