@@ -17,9 +17,11 @@ export default function AuthLoader({
 	// load auth
 	useEffect(() => {
 		if (noAuth) {
-			setState({
-				isRestoring: false,
-			});
+			setTimeout(() => {
+				setState({
+					isRestoring: false,
+				});
+			}, 500);
 			return;
 		}
 
