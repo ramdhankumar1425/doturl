@@ -4,41 +4,28 @@ import { create } from "zustand";
 
 type AuthStore = {
 	isAuthenticated: boolean;
-	isLoading: boolean;
+	isRestoring: boolean;
+	isRefreshing: boolean;
 	accessToken: string | null;
 	user: IUser | null;
 
-	setAuth: (accessToken: string) => Promise<void>;
-	refreshAuth: () => Promise<any>;
+	syncAuth: (isRefresh: boolean) => Promise<void>;
 	clearAuth: () => Promise<void>;
 };
 
 export const useAuthStore = create<AuthStore>((set, get) => ({
 	isAuthenticated: false,
-	isLoading: true,
+	isRestoring: true, // auth loading on app load
+	isRefreshing: false, // token refresh on 401 response
 	accessToken: null,
 	user: null,
 
-	setAuth: async (accessToken) => {
-		console.log("[AuthStore] Setting auth.");
-		if (!accessToken) {
-			console.error(
-				"[AuthStore] Error in setAuth: accessToken not provided."
-			);
+	syncAuth: async (isRefresh) => {
+		if (isRefresh) set({ isRefreshing: true });
+		else set({ isRestoring: true });
 
-			return;
-		}
-
-		set({
-			isAuthenticated: true,
-			isLoading: false,
-			accessToken,
-		});
-	},
-
-	refreshAuth: async () => {
 		try {
-			console.log("[AuthStore] Attempting to refresh tokens...");
+			console.log("[AuthStore] Attempting to sync auth...");
 
 			const response = await axios.request({
 				baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
@@ -48,50 +35,49 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 				validateStatus: () => true,
 			});
 
-			const data = await response.data;
-			console.log("[AuthStore] Refresh tokens response:", data);
+			const data = response.data;
+			console.log("[AuthStore] syncAuth response:", data);
 
 			if (data.success) {
-				// successfully got tokens
-				console.log("[AuthStore] Tokens refreshed successfully.");
+				// successfully synced
+				console.log("[AuthStore] auth synced successfully.");
 
-				const { accessToken: newAccessToken, user } =
-					await data.payload;
+				const { accessToken, user } = data.payload;
 
 				// update store
 				set({
 					isAuthenticated: true,
-					isLoading: false,
-					accessToken: newAccessToken,
+					accessToken,
 					user,
 				});
-
-				return data;
 			} else {
 				console.warn(
-					"[AuthStore] Failed to refresh tokens. Clearing auth state."
+					"[AuthStore] Failed to sync auth. Clearing auth state."
 				);
 
 				await get().clearAuth();
-
-				return null;
 			}
 		} catch (error) {
-			console.error("[AuthStore] Error refreshing tokens:", error);
+			console.error("[AuthStore] Error syncing auth:", error);
 
 			await get().clearAuth();
-
-			return null;
+		} finally {
+			set({
+				isRefreshing: false,
+				isRestoring: false,
+			});
 		}
 	},
 
 	clearAuth: async () => {
-		console.log("[AuthStore] Clearing auth.");
+		console.log("[AuthStore] Clearing auth...");
 
 		set({
 			isAuthenticated: false,
-			isLoading: false,
+			isRestoring: false,
+			isRefreshing: false,
 			accessToken: null,
+			user: null,
 		});
 	},
 }));

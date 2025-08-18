@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Kalam, Inter } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
 import AuthLoader from "@/components/AuthLoader";
+import { headers } from "next/headers";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -48,18 +49,21 @@ export const metadata: Metadata = {
 	},
 };
 
-export default function RootLayout({
+export default async function RootLayout({
 	children,
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
+	// this runs on the server
+	const hdrs = await headers();
+	const noAuth = hdrs.get("x-no-auth") === "true";
+
 	return (
 		<html lang="en">
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} ${kalam.variable} ${inter.variable} antialiased dark font-inter`}
 			>
-				{children}
-				<AuthLoader />
+				<AuthLoader noAuth={noAuth}>{children}</AuthLoader>
 				<Analytics />
 			</body>
 		</html>

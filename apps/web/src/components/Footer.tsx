@@ -4,12 +4,12 @@ import { Facebook, Github, Instagram, Linkedin } from "lucide-react";
 
 export default function Footer() {
 	return (
-		<footer className="mx-8 pt-10 pb-20 bg-neutral-900 border-t border-neutral-700">
+		<footer className="mx-8 pt-2 pb-10 bg-neutral-900 border-t border-neutral-700">
 			<div className="container mx-auto px-4 py-4 flex items-center justify-between">
 				<div className="font-semibold">
-					&copy; 2025 SMALLII -{" "}
+					&copy; 2025 DotUrl -{" "}
 					<span className="underline underline-offset-2">
-						smallii.io
+						doturl.tech
 					</span>
 				</div>
 

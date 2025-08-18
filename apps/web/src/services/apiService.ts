@@ -52,42 +52,23 @@ axiosClient.interceptors.response.use(
 				"[ApiService] Received 401 Unauthorized. Attempting token refresh..."
 			);
 
-			const { refreshAuth } = useAuthStore.getState();
+			const syncAuth = useAuthStore.getState().syncAuth;
 
 			try {
-				const response = await refreshAuth();
+				await syncAuth(true);
+
+				const newAccessToken = useAuthStore.getState().accessToken;
 
 				// if we successfully got tokens, else case is handled in authStore itself
-				if (response?.success) {
-					console.log(
-						"[ApiService] Token refresh successful. Retrying original request."
-					);
-
-					const { accessToken: newAccessToken } = response.payload;
-
+				if (newAccessToken) {
 					// retry original request with new token
 					originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 
 					return axiosClient(originalRequest);
-				} else {
-					console.warn(
-						"[ApiService] Token refresh failed. Logging out user."
-					);
 				}
 			} catch (error) {
-				// handle error
-				console.error(
-					"[ApiService] Error during token refresh:",
-					error
-				);
-
-				// logout the user
-				useAuthStore.getState().clearAuth();
-
 				return Promise.reject(error);
 			}
-
-			await useAuthStore.getState().clearAuth();
 		}
 
 		return Promise.reject(error);
@@ -105,6 +86,7 @@ export const sendApiRequest = async (
 		method,
 		data: payload,
 		withCredentials: true,
+		validateStatus: () => true,
 	});
 
 	const data: IApiResponse<any> = await response.data;

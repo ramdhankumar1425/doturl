@@ -20,6 +20,7 @@ import React, { useEffect, useState } from "react";
 import CreateNewDialog from "@/components/dashboard/CreateNewDialog";
 import DashboardHeader from "@/components/DashboardHeader";
 import { sendApiRequest } from "@/services/apiService";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 export default function DashboardPage() {
 	const [summary, setSummary] = useState({
@@ -29,6 +30,7 @@ export default function DashboardPage() {
 		clicksLast24Hours: 0,
 	});
 	const [totalVisitors, setTotalVisitors] = useState<any[]>([]);
+	const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
 	const fetchSummary = async () => {
 		const response = await sendApiRequest("/dashboard/summary", "GET");
@@ -54,12 +56,12 @@ export default function DashboardPage() {
 		}
 	};
 
-	console.log({ totalVisitors });
-
 	useEffect(() => {
-		fetchSummary();
-		fetchTotalVisitors();
-	}, []);
+		if (isAuthenticated) {
+			fetchSummary();
+			fetchTotalVisitors();
+		}
+	}, [isAuthenticated]);
 
 	return (
 		<div className="min-h-screen flex-1">

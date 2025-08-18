@@ -1,12 +1,10 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { UserMenu } from "./UserMenu";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { sendApiRequest } from "@/services/apiService";
 
 export default function Header() {
-	const isLoading = useAuthStore((state) => state.isLoading);
 	const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 	const clearAuth = useAuthStore((state) => state.clearAuth);
 	const user = useAuthStore((state) => state.user);
@@ -33,15 +31,10 @@ export default function Header() {
 					href={"/"}
 					className="pt-2 px-4 text-2xl font-kalam text-neutral-50"
 				>
-					SMALLII
+					.Url
 				</Link>
 
-				{isLoading ? (
-					<div className="flex items-center space-x-4">
-						<Skeleton className="h-8 w-8 rounded-full" />
-						<Skeleton className="h-6 w-32" />
-					</div>
-				) : isAuthenticated ? (
+				{isAuthenticated ? (
 					<UserMenu
 						user={user!}
 						onLogout={handleLogout}

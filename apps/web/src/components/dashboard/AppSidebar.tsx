@@ -88,7 +88,7 @@ export default function AppSidebar() {
 					href={"/"}
 					className="pt-2 px-4 text-2xl font-kalam text-neutral-50"
 				>
-					SMALLII
+					.Url
 				</Link>
 			</SidebarHeader>
 			<SidebarContent>

@@ -19,9 +19,20 @@ export default function Home() {
 	const [shortUrl, setShortUrl] = useState("");
 	const [error, setError] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
+	const [canAutoPaste, setCanAutoPaste] = useState(false);
 
 	const handleShorten = async () => {
-		if (!longUrl) return;
+		let originalUrl = longUrl;
+
+		if (!originalUrl && canAutoPaste) {
+			const val = await navigator.clipboard.readText();
+			if (val) {
+				setLongUrl(val);
+				originalUrl = val;
+			}
+		}
+
+		if (!originalUrl) return;
 
 		setError("");
 		setIsLoading(true);
@@ -31,7 +42,7 @@ export default function Home() {
 				`/urls${isAuthenticated ? "" : "/anon"}`,
 				"POST",
 				{
-					longUrl,
+					longUrl: originalUrl,
 				}
 			);
 
@@ -57,13 +68,18 @@ export default function Home() {
 		<div className="min-h-screen bg-neutral-900">
 			<Header />
 
-			<>
-				<div className="mt-28 flex-col items-center justify-center font-inter">
+			<div className="min-h-screen flex flex-col items-center justify-center">
+				<div className="-mt-10 flex-col items-center justify-center font-inter select-none">
 					<p className="text-center text-5xl font-semibold">
-						Make Your Loooong Links
+						From looooong urls to short
 					</p>
 					<br />
-					<p className="text-center text-5xl font-kalam">SMALLII</p>
+					<p className="text-center text-5xl font-kalam">
+						with{" "}
+						<span className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+							.Url
+						</span>
+					</p>
 				</div>
 
 				<div className="mt-10 relative h-16 rounded-4xl outline-4 w-1/2 mx-auto">
@@ -134,7 +150,11 @@ export default function Home() {
 				)}
 
 				<div className="mt-6 flex items-center justify-center space-x-2">
-					<Switch id="auto-clipboard-paste" />
+					<Switch
+						id="auto-clipboard-paste"
+						checked={canAutoPaste}
+						onCheckedChange={(c) => setCanAutoPaste(c)}
+					/>
 					<Label
 						htmlFor="auto-clipboard-paste"
 						className="font-normal"
@@ -156,9 +176,9 @@ export default function Home() {
 						className="text-neutral-200 hover:text-neutral-400 duration-150 cursor-pointer"
 					/>
 				</div>
-			</>
+			</div>
 
-			<div className="h-40 w-full"></div>
+			{/* <div className="h-40 w-full"></div> */}
 			<Footer />
 		</div>
 	);
