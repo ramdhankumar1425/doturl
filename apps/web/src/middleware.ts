@@ -5,7 +5,6 @@ const protectedRoutes = ["/dashboard"];
 const authRoutes = ["/auth"];
 
 export function middleware(req: NextRequest) {
-	const res = NextResponse.next();
 	const refreshToken = req.cookies.get("refreshToken");
 	const { pathname } = req.nextUrl;
 
