@@ -93,9 +93,9 @@ export const googleCallback = asyncHandler(async (req, res) => {
 
 	res.cookie("refreshToken", refreshToken, {
 		httpOnly: true,
-		secure: true,
-		sameSite: "none",
-		maxAge: 30 * 24 * 60 * 60 * 1000,
+		secure: process.env.NODE_ENV === "production",
+		sameSite: "lax",
+		maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days in ms
 		path: "/",
 	});
 
@@ -291,9 +291,9 @@ export const refresh = asyncHandler(async (req, res) => {
 
 	res.cookie("refreshToken", newRefreshToken, {
 		httpOnly: true,
-		secure: true,
-		sameSite: "none",
-		maxAge: 30 * 24 * 60 * 60 * 1000,
+		secure: process.env.NODE_ENV === "production",
+		sameSite: "lax",
+		maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days in ms
 		path: "/",
 	});
 
