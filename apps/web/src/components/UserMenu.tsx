@@ -23,8 +23,8 @@ export const UserMenu: FC<UserMenuProps> = ({ user, onLogout }) => {
 			closeDelay={50}
 		>
 			<HoverCardTrigger asChild>
-				<button className="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-accent focus:outline-none cursor-pointer">
-					<Avatar className="h-8 w-8">
+				<button className="flex items-center gap-1 sm:gap-2 rounded-md px-1 sm:px-2 py-1 hover:bg-accent focus:outline-none cursor-pointer">
+					<Avatar className="h-7 w-7 sm:h-8 sm:w-8">
 						<AvatarImage
 							src={
 								user.avatar ||
@@ -32,25 +32,25 @@ export const UserMenu: FC<UserMenuProps> = ({ user, onLogout }) => {
 							}
 							alt={user.name}
 						/>
-						<AvatarFallback>
+						<AvatarFallback className="text-xs sm:text-sm">
 							{user.name?.charAt(0).toUpperCase()}
 						</AvatarFallback>
 					</Avatar>
-					<span className="hidden sm:inline text-sm font-medium leading-none">
+					<span className="hidden sm:inline text-sm font-medium leading-none max-w-[100px] lg:max-w-none truncate">
 						{user.name}
 					</span>
-					<ChevronDown className="h-4 w-4 text-muted-foreground" />
+					<ChevronDown className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
 				</button>
 			</HoverCardTrigger>
 
 			<HoverCardContent
 				align="end"
-				className="w-52 p-2"
+				className="w-48 sm:w-52 p-2 mr-2 sm:mr-0"
 			>
 				<div className="px-2 py-1">
-					<div className="font-medium">{user.name}</div>
+					<div className="font-medium text-sm">{user.name}</div>
 					{user.email && (
-						<p className="text-xs text-muted-foreground">
+						<p className="text-xs text-muted-foreground truncate">
 							{user.email}
 						</p>
 					)}
