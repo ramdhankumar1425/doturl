@@ -132,7 +132,10 @@ export default function Home() {
 								target="_blank"
 							>
 								<p className="truncate text-neutral-200 text-sm">
-									{shortUrl}
+									{shortUrl.replace(
+										/^https?:\/\/(www\.)?/,
+										""
+									)}
 								</p>
 							</Link>
 							<Button

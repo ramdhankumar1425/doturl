@@ -17,9 +17,10 @@ import { Copy, MoreHorizontal } from "lucide-react";
 import React from "react";
 import TrafficAnalytics from "@/components/dashboard/TrafficAnalytics";
 import Link from "next/link";
+import { getShortUrl } from "@/utils/shortUrl";
 
 const url = {
-	shortUrl: "link.smallii.in/c0eqxme",
+	shortCode: "c0eqxme",
 	longUrl: "https://ui.shadcn.com/docs/components/data-table",
 	status: "Active",
 	createdAt: "2025-04-12",
@@ -90,17 +91,19 @@ export default function URLDetailsPage() {
 							</label>
 							<div className="bg-neutral-800 border border-neutral-700 text-white pr-12 rounded-md px-3 py-2 text-sm w-full block">
 								<Link
-									href={url.shortUrl}
+									href={`/${url.shortCode}`}
 									target="_blank"
 									className="hover:underline"
 								>
-									{url.shortUrl}
+									{url.shortCode}
 								</Link>
 							</div>
 
 							<span
 								onClick={() =>
-									navigator.clipboard.writeText(url.shortUrl)
+									navigator.clipboard.writeText(
+										getShortUrl(url.shortCode)
+									)
 								}
 								className="absolute right-3 top-[34px] text-neutral-400 hover:text-white duration-150 cursor-pointer flex items-center"
 							>
@@ -123,7 +126,7 @@ export default function URLDetailsPage() {
 							</div>
 							<span
 								onClick={() =>
-									navigator.clipboard.writeText(url.shortUrl)
+									navigator.clipboard.writeText(url.longUrl)
 								}
 								className="absolute right-3 top-[34px] text-neutral-400 hover:text-white duration-150 cursor-pointer flex items-center"
 							>

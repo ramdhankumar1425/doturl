@@ -1,5 +1,5 @@
 export const getShortUrl = (shortCode: string): string => {
-	const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+	const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL;
 
-	return `${API_BASE_URL}/urls/${shortCode}`;
+	return `${SITE_URL}/${shortCode}`;
 };

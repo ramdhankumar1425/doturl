@@ -25,6 +25,7 @@ import DashboardHeader from "@/components/DashboardHeader";
 import { useEffect, useState } from "react";
 import { IUrl } from "types";
 import { sendApiRequest } from "@/services/apiService";
+import Link from "next/link";
 
 export default function UrlsPage() {
 	const [urls, setUrls] = useState<IUrl[]>([]);
@@ -75,18 +76,14 @@ export default function UrlsPage() {
 							{urls.map((url) => (
 								<TableRow key={url._id}>
 									<TableCell className="font-medium">
-										<a
-											href={
-												process.env
-													.NEXT_PUBLIC_API_BASE_URL +
-												`/urls/${url.shortCode}`
-											}
+										<Link
+											href={`/${url.shortCode}`}
 											target="_blank"
 											rel="noopener noreferrer"
 											className="text-white hover:underline"
 										>
 											{url.shortCode}
-										</a>
+										</Link>
 									</TableCell>
 									<TableCell className="max-w-[250px] truncate">
 										<a
