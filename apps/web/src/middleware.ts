@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 const protectedRoutes = ["/dashboard"];
-const authRoutes = ["/auth"];
 
 export function middleware(req: NextRequest) {
 	const refreshToken = req.cookies.get("refreshToken");
@@ -22,11 +21,6 @@ export function middleware(req: NextRequest) {
 		const res = NextResponse.next();
 		res.headers.set("x-no-auth", "true");
 		return res;
-	}
-
-	if (authRoutes.some((route) => pathname.startsWith(route))) {
-		const homeUrl = new URL("/", req.url);
-		return NextResponse.redirect(homeUrl);
 	}
 
 	// otherwise allow
