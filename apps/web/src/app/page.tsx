@@ -127,7 +127,7 @@ export default function Home() {
 							Here&apos;s your short URL
 						</p>
 						<div className="flex items-center justify-between bg-neutral-900 border border-neutral-800 rounded-2xl px-4 py-3">
-							<Link
+							<a
 								href={shortUrl}
 								target="_blank"
 							>
@@ -137,13 +137,18 @@ export default function Home() {
 										""
 									)}
 								</p>
-							</Link>
+							</a>
 							<Button
 								variant="ghost"
 								size="sm"
 								className="text-blue-500 hover:text-blue-600 hover:bg-neutral-800 cursor-pointer"
 								onClick={() =>
-									navigator.clipboard.writeText(shortUrl)
+									navigator.clipboard.writeText(
+										shortUrl.replace(
+											/^https?:\/\/(www\.)?/,
+											""
+										)
+									)
 								}
 							>
 								Copy
