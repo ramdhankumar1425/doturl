@@ -13,9 +13,9 @@ const app = express();
 
 // global middlewares
 app.use(cors(corsConfig));
+app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(cookieParser());
 
 // global user agent parser
 app.use(UserAgentMiddleware.parseUserAgent);

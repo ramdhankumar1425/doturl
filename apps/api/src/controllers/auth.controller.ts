@@ -237,8 +237,8 @@ export const refresh = asyncHandler(async (req, res) => {
 		// Verify token exists, not expired, and not revoked
 		if (
 			!storedToken ||
-			storedToken.expiresAt < new Date() ||
-			storedToken.revokedAt
+			storedToken.expiresAt < new Date()
+			// || storedToken.revokedAt
 		)
 			throw new ApiError(
 				401,
