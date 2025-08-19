@@ -94,7 +94,7 @@ export const googleCallback = asyncHandler(async (req, res) => {
 	res.cookie("refreshToken", refreshToken, {
 		httpOnly: true,
 		secure: process.env.NODE_ENV === "production",
-		sameSite: "lax",
+		sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
 		maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days in ms
 		path: "/",
 	});
@@ -292,7 +292,7 @@ export const refresh = asyncHandler(async (req, res) => {
 	res.cookie("refreshToken", newRefreshToken, {
 		httpOnly: true,
 		secure: process.env.NODE_ENV === "production",
-		sameSite: "lax",
+		sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
 		maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days in ms
 		path: "/",
 	});
@@ -344,7 +344,7 @@ export const logout = asyncHandler(async (req, res) => {
 	res.clearCookie("refreshToken", {
 		httpOnly: true,
 		secure: process.env.NODE_ENV === "production",
-		sameSite: "lax",
+		sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
 		path: "/",
 	});
 

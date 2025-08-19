@@ -8,7 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { sendApiRequest } from "@/services/apiService";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { getShortUrl } from "@/utils/shortUrl";
-import { CircleQuestionMark, Link as LinkIcon } from "lucide-react";
+import { Link as LinkIcon } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { IUrl } from "types";
