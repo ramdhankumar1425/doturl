@@ -7,6 +7,7 @@ import { sendApiResponse } from "../utils/sendApiResponse.js";
 import { ApiError } from "../utils/errors/ApiError.js";
 import { generateAnonId } from "../utils/tokens.js";
 import { withMongoTransaction } from "../utils/transactions.js";
+import ENV from "../config/env.config.js";
 
 export const shortUrlAnon = asyncHandler(async (req, res) => {
 	const { longUrl } = req.body;
@@ -116,7 +117,12 @@ export const redirect = asyncHandler(async (req, res) => {
 
 	// find url in db
 	const url = await UrlModel.findOne({ shortCode });
-	if (!url) throw new ApiError(404, "NOT_FOUND", "Url not found.");
+
+	if (!url) {
+		res.redirect(`${ENV.CLIENT_URI}/not-found`);
+		return;
+		// throw new ApiError(404, "NOT_FOUND", "Url not found.");
+	}
 
 	await withMongoTransaction(async (session) => {
 		// update clicks count
