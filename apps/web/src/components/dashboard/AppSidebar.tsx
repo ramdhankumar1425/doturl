@@ -86,7 +86,7 @@ export default function AppSidebar() {
 			<SidebarHeader>
 				<Link
 					href={"/"}
-					className="pt-2 px-4 text-2xl font-kalam text-neutral-50"
+					className="pt-2 px-4 text-2xl font-kalam font-bold text-neutral-50"
 				>
 					.Url
 				</Link>
@@ -151,7 +151,7 @@ export default function AppSidebar() {
 										? user.name.slice(0, 15) + "..."
 										: user?.name}
 								</p>
-								<p className="text-neutral-400 font-light text-sm">
+								<p className="text-neutral-400 text-sm">
 									{user?.email && user.email.length > 15
 										? user.email.slice(0, 15) + "..."
 										: user?.email}

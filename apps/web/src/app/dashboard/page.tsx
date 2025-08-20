@@ -70,88 +70,98 @@ export default function DashboardPage() {
 				action={<CreateNewDialog />}
 			/>
 			{/* Stats Cards */}
-			<div className="mt-10 mb-10 px-6 flex items-center justify-between space-x-4">
-				<Card className="flex-1">
-					<CardHeader>
-						<CardTitle>Total Links</CardTitle>
-						<CardDescription>
+			<div className="mt-6 md:mt-10 mb-6 md:mb-10 px-4 md:px-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+				<Card>
+					<CardHeader className="p-4 md:p-6">
+						<CardTitle className="text-base md:text-lg">
+							Total Links
+						</CardTitle>
+						<CardDescription className="text-xs md:text-sm">
 							Total links you created
 						</CardDescription>
 					</CardHeader>
-					<CardContent>
-						<p className="scroll-m-20 pb-1 text-3xl font-semibold tracking-tight">
+					<CardContent className="p-4 pt-0 md:p-6 md:pt-0">
+						<p className="scroll-m-20 text-2xl md:text-3xl font-semibold tracking-tight">
 							{summary.totalUrls}
 						</p>
 					</CardContent>
 				</Card>
 
-				<Card className="flex-1">
-					<CardHeader>
-						<CardTitle>Unique Visitors</CardTitle>
-						<CardDescription>
+				<Card>
+					<CardHeader className="p-4 md:p-6">
+						<CardTitle className="text-base md:text-lg">
+							Unique Visitors
+						</CardTitle>
+						<CardDescription className="text-xs md:text-sm">
 							Total unique visitors till now
 						</CardDescription>
 					</CardHeader>
-					<CardContent>
-						<p className="scroll-m-20 pb-1 text-3xl font-semibold tracking-tight">
+					<CardContent className="p-4 pt-0 md:p-6 md:pt-0">
+						<p className="scroll-m-20 text-2xl md:text-3xl font-semibold tracking-tight">
 							{summary.totalUniqueVisitors}
 						</p>
 					</CardContent>
 				</Card>
 
-				<Card className="flex-1">
-					<CardHeader>
-						<CardTitle>Avg. Daily Clicks (7d)</CardTitle>
-						<CardDescription>
+				<Card>
+					<CardHeader className="p-4 md:p-6">
+						<CardTitle className="text-base md:text-lg">
+							Avg. Daily Clicks (7d)
+						</CardTitle>
+						<CardDescription className="text-xs md:text-sm">
 							Average clicks per day (last 7 days)
 						</CardDescription>
 					</CardHeader>
-					<CardContent>
-						<p className="scroll-m-20 pb-1 text-3xl font-semibold tracking-tight">
+					<CardContent className="p-4 pt-0 md:p-6 md:pt-0">
+						<p className="scroll-m-20 text-2xl md:text-3xl font-semibold tracking-tight">
 							{summary.averageDailyClicks}
 						</p>
 					</CardContent>
 				</Card>
 
-				<Card className="flex-1">
-					<CardHeader>
-						<CardTitle>Clicks in Last 24h</CardTitle>
-						<CardDescription>
+				<Card>
+					<CardHeader className="p-4 md:p-6">
+						<CardTitle className="text-base md:text-lg">
+							Clicks in Last 24h
+						</CardTitle>
+						<CardDescription className="text-xs md:text-sm">
 							Total clicks in the last 24 hours
 						</CardDescription>
 					</CardHeader>
-					<CardContent>
-						<p className="scroll-m-20 pb-1 text-3xl font-semibold tracking-tight">
+					<CardContent className="p-4 pt-0 md:p-6 md:pt-0">
+						<p className="scroll-m-20 text-2xl md:text-3xl font-semibold tracking-tight">
 							{summary.clicksLast24Hours}
 						</p>
 					</CardContent>
 				</Card>
 			</div>
 			{/* Chart */}
-			<Card className="mx-6 mb-20">
-				<CardHeader>
-					<CardTitle>Total Visitors</CardTitle>
-					<CardDescription>
+			<Card className="mx-4 md:mx-6 mb-10 md:mb-20">
+				<CardHeader className="p-4 md:p-6">
+					<CardTitle className="text-lg md:text-xl">
+						Total Visitors
+					</CardTitle>
+					<CardDescription className="text-xs md:text-sm">
 						Total for the last 3 months
 					</CardDescription>
 					<CardAction>
-						<div className="flex border border-neutral-700 rounded-lg overflow-hidden">
-							<p className="border-r py-2 pl-4 pr-2 hover:bg-neutral-800 cursor-pointer text-sm font-normal">
+						<div className="flex flex-wrap mt-2 border border-neutral-700 rounded-lg overflow-hidden">
+							<p className="border-r border-b sm:border-b-0 py-1 sm:py-2 px-2 sm:pl-4 sm:pr-2 hover:bg-neutral-800 cursor-pointer text-xs sm:text-sm font-normal whitespace-nowrap">
 								Last 3 months
 							</p>
-							<p className="border-r py-2 pl-4 pr-2 hover:bg-neutral-800 cursor-pointer text-sm font-normal">
+							<p className="border-r py-1 sm:py-2 px-2 sm:pl-4 sm:pr-2 hover:bg-neutral-800 cursor-pointer text-xs sm:text-sm font-normal whitespace-nowrap">
 								Last 30 days
 							</p>
-							<p className="py-2 pr-4 pl-2 hover:bg-neutral-800 cursor-pointer text-sm font-normal">
+							<p className="py-1 sm:py-2 px-2 sm:pr-4 sm:pl-2 hover:bg-neutral-800 cursor-pointer text-xs sm:text-sm font-normal whitespace-nowrap">
 								Last 7 days
 							</p>
 						</div>
 					</CardAction>
 				</CardHeader>
-				<CardContent className="mt-10 h-80">
+				<CardContent className="mt-4 md:mt-10 h-60 md:h-80 p-2 md:p-6">
 					<ResponsiveContainer
 						width="100%"
-						height={300}
+						height="100%"
 					>
 						<AreaChart data={totalVisitors}>
 							<defs>
@@ -177,10 +187,12 @@ export default function DashboardPage() {
 
 							<XAxis
 								dataKey="timestamp"
-								interval="preserveStartEnd" // avoid squeezing
+								interval="preserveStartEnd"
 								tickFormatter={(value) =>
 									value.length > 5 ? value.slice(5) : value
-								} // shorten if needed
+								}
+								tick={{ fontSize: 10 }}
+								tickMargin={5}
 							/>
 
 							<CartesianGrid
@@ -192,7 +204,7 @@ export default function DashboardPage() {
 							<Tooltip
 								content={({ active, payload }) =>
 									active && payload && payload.length ? (
-										<div className="bg-neutral-800 text-white px-2 py-4 rounded-md shadow-md text-sm">
+										<div className="bg-neutral-800 text-white px-2 py-4 rounded-md shadow-md text-xs sm:text-sm">
 											Visitors: {payload[0].value}
 										</div>
 									) : null

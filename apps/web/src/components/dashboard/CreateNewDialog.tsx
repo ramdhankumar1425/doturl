@@ -62,7 +62,8 @@ export default function CreateNewDialog() {
 					variant="default"
 					className="cursor-pointer"
 				>
-					<CirclePlus /> Create new
+					<CirclePlus />{" "}
+					<span className="text-sm sm:text-base">Create new</span>
 				</Button>
 			</DialogTrigger>
 

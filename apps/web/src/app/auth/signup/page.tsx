@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Github } from "lucide-react";
 
-export default function SignupPage() {
+export default function LoginPage() {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 
@@ -24,37 +24,43 @@ export default function SignupPage() {
 
 	const handleGithubLogin = () => {
 		// Github OAuth redirect
+		const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+		window.location.href = API_BASE_URL + "/auth/github";
 	};
 
 	const handleGoogleLogin = () => {
 		// Google OAuth redirect
+		const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+		window.location.href = API_BASE_URL + "/auth/google";
 	};
 
 	return (
-		<div className="min-h-screen flex items-center justify-center bg-neutral-50 dark:bg-neutral-900">
-			<Card className="w-full max-w-md p-6 bg-neutral-800">
+		<div className="min-h-screen flex items-center justify-center px-4 py-8 bg-gray-50 dark:bg-neutral-900">
+			<Card className="w-full max-w-md mx-auto p-4 sm:p-6 bg-neutral-800">
 				<CardHeader className="space-y-1 text-center">
-					<CardTitle className="text-2xl">
+					<CardTitle className="text-xl sm:text-2xl">
 						Create an account
 					</CardTitle>
-					<CardDescription>
+					<CardDescription className="text-sm sm:text-base">
 						Enter your email below to create your account
 					</CardDescription>
 				</CardHeader>
 
-				<CardContent className="space-y-6">
+				<CardContent className="space-y-4 sm:space-y-6">
 					{/* Social buttons */}
-					<div className="flex gap-4 justify-center">
+					<div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
 						<Button
 							variant="outline"
-							className="flex-1 flex items-center justify-center gap-2 cursor-pointer"
+							className="flex-1 flex items-center justify-center gap-2 cursor-pointer h-10 sm:h-11"
 							onClick={handleGithubLogin}
 						>
 							<Github size={20} /> Github
 						</Button>
 						<Button
 							variant="outline"
-							className="flex-1 flex items-center justify-center gap-2 cursor-pointer"
+							className="flex-1 flex items-center justify-center gap-2 cursor-pointer h-10 sm:h-11"
 							onClick={handleGoogleLogin}
 						>
 							{/* <Google size={20} />  */}
@@ -65,7 +71,7 @@ export default function SignupPage() {
 					{/* Divider with text */}
 					<div className="relative flex items-center">
 						<div className="flex-grow border-t border-gray-300 dark:border-gray-700"></div>
-						<span className="px-3 text-gray-500 dark:text-gray-400 text-sm">
+						<span className="px-2 sm:px-3 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
 							OR CONTINUE WITH
 						</span>
 						<div className="flex-grow border-t border-gray-300 dark:border-gray-700"></div>
@@ -74,12 +80,12 @@ export default function SignupPage() {
 					{/* Email & Password form */}
 					<form
 						onSubmit={handleSubmit}
-						className="space-y-4"
+						className="space-y-3 sm:space-y-4"
 					>
 						<div className="space-y-1">
 							<label
 								htmlFor="email"
-								className="block text-sm font-medium text-gray-700 dark:text-gray-200"
+								className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200"
 							>
 								Email
 							</label>
@@ -90,13 +96,14 @@ export default function SignupPage() {
 								value={email}
 								onChange={(e) => setEmail(e.target.value)}
 								required
+								className="h-9 sm:h-10"
 							/>
 						</div>
 
 						<div className="space-y-1">
 							<label
 								htmlFor="password"
-								className="block text-sm font-medium text-gray-700 dark:text-gray-200"
+								className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200"
 							>
 								Password
 							</label>
@@ -107,19 +114,20 @@ export default function SignupPage() {
 								value={password}
 								onChange={(e) => setPassword(e.target.value)}
 								required
+								className="h-9 sm:h-10"
 							/>
 						</div>
 
 						<Button
 							type="submit"
-							className="w-full"
+							className="w-full h-10 sm:h-11 mt-2"
 						>
 							Sign Up
 						</Button>
 					</form>
 
-					{/* Already have an account */}
-					<p className="text-sm text-center text-gray-500 dark:text-gray-400">
+					{/* Signup link */}
+					<p className="text-xs sm:text-sm text-center text-gray-500 dark:text-gray-400">
 						Already have an account?{" "}
 						<Link
 							href="/auth/login"

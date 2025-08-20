@@ -33,7 +33,7 @@ export default function AuthLoader({
 	if (isRestoring)
 		return (
 			<div className="absolute top-0 left-0 right-0 min-h-screen bg-neutral-900 flex items-center justify-center z-[1000]">
-				<p className="text-4xl font-kalam text-neutral-50 animate-pulse">
+				<p className="text-2xl sm:text:3xl md:text-4xl font-kalam font-semibold text-neutral-50 animate-pulse">
 					.Url
 				</p>
 			</div>

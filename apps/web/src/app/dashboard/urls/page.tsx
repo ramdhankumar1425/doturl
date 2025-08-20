@@ -26,9 +26,12 @@ import { useEffect, useState } from "react";
 import { IUrl } from "types";
 import { sendApiRequest } from "@/services/apiService";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Badge } from "@/components/ui/badge";
 
 export default function UrlsPage() {
 	const [urls, setUrls] = useState<IUrl[]>([]);
+	const router = useRouter();
 
 	const fetchUrls = async () => {
 		try {
@@ -51,14 +54,14 @@ export default function UrlsPage() {
 	}, []);
 
 	return (
-		<div className="min-h-screen flex-1">
+		<div className="min-h-screen flex-1 mb-40">
 			<DashboardHeader
 				title="Your links"
 				action={<CreateNewDialog />}
 			/>
-			<div className="mt-10 px-6">
-				<div className="px-4 py-2 rounded-md border">
-					<Table>
+			<div className="mt-4 sm:mt-10 px-2 sm:px-6">
+				<div className="px-4 py-2 max-w-[100vw] rounded-md border">
+					<Table className="">
 						<TableHeader>
 							<TableRow>
 								<TableHead>Short URL</TableHead>
@@ -74,7 +77,14 @@ export default function UrlsPage() {
 						</TableHeader>
 						<TableBody>
 							{urls.map((url) => (
-								<TableRow key={url._id}>
+								<TableRow
+									key={url._id}
+									onClick={() =>
+										router.push(
+											`/dashboard/urls/${url._id}`
+										)
+									}
+								>
 									<TableCell className="font-medium">
 										<Link
 											href={`/${url.shortCode}`}
@@ -100,7 +110,20 @@ export default function UrlsPage() {
 									<TableCell>
 										{url.expiresAt || "Never"}
 									</TableCell>
-									<TableCell>{url.status}</TableCell>
+									<TableCell>
+										<Badge
+											variant={
+												url.status === "active"
+													? "default"
+													: url.status === "paused"
+													? "secondary"
+													: "destructive"
+											}
+											className="text-xs px-2 py-0"
+										>
+											{url.status}
+										</Badge>
+									</TableCell>
 									<TableCell className="text-right">
 										<DropdownMenu>
 											<DropdownMenuTrigger asChild>
