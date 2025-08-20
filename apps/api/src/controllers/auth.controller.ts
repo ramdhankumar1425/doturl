@@ -93,10 +93,9 @@ export const googleCallback = asyncHandler(async (req, res) => {
 
 	res.cookie("refreshToken", refreshToken, {
 		httpOnly: true,
-		secure: process.env.NODE_ENV === "production",
-		sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+		secure: true,
+		sameSite: "none",
 		maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days in ms
-		path: "/",
 	});
 
 	res.redirect(`${ENV.CLIENT_URI}/dashboard`);
@@ -291,10 +290,9 @@ export const refresh = asyncHandler(async (req, res) => {
 
 	res.cookie("refreshToken", newRefreshToken, {
 		httpOnly: true,
-		secure: process.env.NODE_ENV === "production",
-		sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+		secure: true,
+		sameSite: "none",
 		maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days in ms
-		path: "/",
 	});
 
 	const response: IApiResponse<{

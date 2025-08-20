@@ -16,6 +16,8 @@ export default function AuthLoader({
 
 	// load auth
 	useEffect(() => {
+		console.log("Inside useEffect of AuthLoader with noAuth:", noAuth);
+
 		if (noAuth) {
 			setTimeout(() => {
 				setState({

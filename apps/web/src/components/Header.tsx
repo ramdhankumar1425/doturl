@@ -29,7 +29,7 @@ export default function Header() {
 			<div className="container mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex items-center justify-between">
 				<Link
 					href={"/"}
-					className="pt-2 px-2 sm:px-4 text-xl sm:text-2xl font-kalam text-neutral-50"
+					className="pt-2 px-2 sm:px-4 text-xl sm:text-2xl font-kalam font-bold text-neutral-50"
 				>
 					.Url
 				</Link>

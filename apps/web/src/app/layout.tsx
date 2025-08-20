@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Kalam, Inter } from "next/font/google";
 import "./globals.css";
-import { Analytics } from "@vercel/analytics/next";
+// import { Analytics } from "@vercel/analytics/next";
 import AuthLoader from "@/components/AuthLoader";
 import { headers } from "next/headers";
 
@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 
 const kalam = Kalam({
 	variable: "--font-kalam",
-	weight: "700",
+	weight: ["300", "400", "700"],
 	subsets: ["latin"],
 });
 
@@ -64,7 +64,7 @@ export default async function RootLayout({
 				className={`${geistSans.variable} ${geistMono.variable} ${kalam.variable} ${inter.variable} antialiased dark font-inter`}
 			>
 				<AuthLoader noAuth={noAuth}>{children}</AuthLoader>
-				<Analytics />
+				{/* <Analytics /> */}
 			</body>
 		</html>
 	);
