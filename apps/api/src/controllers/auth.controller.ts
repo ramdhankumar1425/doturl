@@ -96,6 +96,10 @@ export const googleCallback = asyncHandler(async (req, res) => {
 		secure: true,
 		sameSite: "none",
 		maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days in ms
+		domain: ENV.COOKIE_DOMAIN,
+	});
+	console.log("[auth.controller.ts] Setted cookie:", {
+		domain: ENV.COOKIE_DOMAIN,
 	});
 
 	res.redirect(`${ENV.CLIENT_URI}/dashboard`);
@@ -293,6 +297,10 @@ export const refresh = asyncHandler(async (req, res) => {
 		secure: true,
 		sameSite: "none",
 		maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days in ms
+		domain: ENV.COOKIE_DOMAIN,
+	});
+	console.log("[auth.controller.ts] Setted cookie:", {
+		domain: ENV.COOKIE_DOMAIN,
 	});
 
 	const response: IApiResponse<{

@@ -64,6 +64,8 @@ export default function Home() {
 		}
 	};
 
+	console.log("I'm homepage....");
+
 	return (
 		<div className="min-h-screen bg-neutral-900">
 			<Header />
