@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Kalam, Inter } from "next/font/google";
 import "./globals.css";
-// import { Analytics } from "@vercel/analytics/next";
+import { Analytics } from "@vercel/analytics/next";
 import AuthLoader from "@/components/AuthLoader";
 import { headers } from "next/headers";
 
@@ -47,6 +47,26 @@ export const metadata: Metadata = {
 		locale: "en_IN",
 		type: "website",
 	},
+	icons: {
+		icon: [
+			{
+				url: "/favicons/favicon-16x16.png",
+				sizes: "16x16",
+				type: "image/png",
+			},
+			{
+				url: "/favicons/favicon-32x32.png",
+				sizes: "32x32",
+				type: "image/png",
+			},
+			{ url: "/favicons/favicon.ico", sizes: "any" },
+		],
+		apple: "/favicons/apple-touch-icon.png",
+		other: {
+			rel: "manifest",
+			url: "/favicons/site.webmanifest",
+		},
+	},
 };
 
 export default async function RootLayout({
@@ -64,7 +84,7 @@ export default async function RootLayout({
 				className={`${geistSans.variable} ${geistMono.variable} ${kalam.variable} ${inter.variable} antialiased dark font-inter`}
 			>
 				<AuthLoader noAuth={noAuth}>{children}</AuthLoader>
-				{/* <Analytics /> */}
+				<Analytics />
 			</body>
 		</html>
 	);
