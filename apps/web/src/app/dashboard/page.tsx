@@ -21,6 +21,9 @@ import CreateNewDialog from "@/components/dashboard/CreateNewDialog";
 import DashboardHeader from "@/components/dashboard/Header";
 import { sendApiRequest } from "@/services/apiService";
 import { useAuthStore } from "@/stores/useAuthStore";
+import TimeRangeSelector from "@/components/dashboard/TimeRangeSelector";
+
+type TimeRange = "30d" | "7d" | "24h";
 
 export default function DashboardPage() {
 	const [summary, setSummary] = useState({
@@ -31,6 +34,8 @@ export default function DashboardPage() {
 	});
 	const [totalVisitors, setTotalVisitors] = useState<any[]>([]);
 	const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+	const [timeRange, setTimeRange] = useState<TimeRange>("7d");
+	const [liveMode, setLiveMode] = useState(false);
 
 	const fetchSummary = async () => {
 		const response = await sendApiRequest("/dashboard/summary", "GET");
@@ -137,28 +142,23 @@ export default function DashboardPage() {
 			</div>
 			{/* Chart */}
 			<Card className="mx-4 md:mx-6 mb-10 md:mb-20">
-				<CardHeader className="p-4 md:p-6">
-					<CardTitle className="text-lg md:text-xl">
-						Total Visitors
-					</CardTitle>
-					<CardDescription className="text-xs md:text-sm">
-						Total for the last 3 months
-					</CardDescription>
-					<CardAction>
-						<div className="flex flex-wrap mt-2 border border-neutral-700 rounded-lg overflow-hidden">
-							<p className="border-r border-b sm:border-b-0 py-1 sm:py-2 px-2 sm:pl-4 sm:pr-2 hover:bg-neutral-800 cursor-pointer text-xs sm:text-sm font-normal whitespace-nowrap">
-								Last 3 months
-							</p>
-							<p className="border-r py-1 sm:py-2 px-2 sm:pl-4 sm:pr-2 hover:bg-neutral-800 cursor-pointer text-xs sm:text-sm font-normal whitespace-nowrap">
-								Last 30 days
-							</p>
-							<p className="py-1 sm:py-2 px-2 sm:pr-4 sm:pl-2 hover:bg-neutral-800 cursor-pointer text-xs sm:text-sm font-normal whitespace-nowrap">
-								Last 7 days
-							</p>
-						</div>
-					</CardAction>
+				<CardHeader className="flex flex-col lg:flex-row lg:items-center justify-between border-b border-neutral-800 px-3 sm:px-4 md:px-6 gap-3">
+					<div>
+						<CardTitle className="text-lg md:text-xl">
+							Total Visitors
+						</CardTitle>
+						<CardDescription className="text-xs md:text-sm">
+							Total for the last 3 months
+						</CardDescription>
+					</div>
+					<TimeRangeSelector
+						value={timeRange}
+						onChange={setTimeRange}
+						liveMode={liveMode}
+						onLiveModeChange={setLiveMode}
+					/>
 				</CardHeader>
-				<CardContent className="mt-4 md:mt-10 h-60 md:h-80 p-2 md:p-6">
+				<CardContent className="mt-4 md:mt-10 h-60 md:h-80 p-2 md:p-6 focus:outline-none [&_*]:focus:outline-none [&_*]:focus:ring-0">
 					<ResponsiveContainer
 						width="100%"
 						height="100%"

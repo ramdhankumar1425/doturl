@@ -11,7 +11,6 @@ import {
 	Tooltip,
 	ResponsiveContainer,
 } from "recharts";
-import { Badge } from "@/components/ui/badge";
 
 // Sample data - replace with real API data
 const data = [
@@ -48,7 +47,7 @@ export default function TrafficAnalytics() {
 			</CardHeader>
 
 			<CardContent className="px-3 sm:px-4 md:px-6">
-				{/* Analytics Summary */}
+				{/* analytics Summary */}
 				<div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4 mb-4 sm:mb-6">
 					<div className="bg-neutral-800 border border-neutral-700 rounded-lg p-2 sm:p-3">
 						<p className="text-xs text-neutral-400">Total Clicks</p>
@@ -72,7 +71,7 @@ export default function TrafficAnalytics() {
 					</div>
 				</div>
 
-				{/* Chart - with focus outline removal */}
+				{/* chart */}
 				<div className="h-60 sm:h-72 md:h-80 mt-4 sm:mt-10 md:mt-16 mx-auto max-w-4xl focus:outline-none [&_*]:focus:outline-none [&_*]:focus:ring-0">
 					<ResponsiveContainer
 						width="100%"
@@ -157,7 +156,7 @@ export default function TrafficAnalytics() {
 					</ResponsiveContainer>
 				</div>
 
-				{/* Geography Section */}
+				{/* geography Section */}
 				<div className="mt-6 max-w-4xl mx-auto">
 					<h3 className="text-sm sm:text-base font-medium mb-3">
 						Top Locations

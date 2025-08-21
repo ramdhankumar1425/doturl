@@ -74,9 +74,9 @@ export default function Home() {
 						From looooong urls to short
 					</p>
 					<br />
-					<p className="text-center text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-kalam">
+					<p className="text-center text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold">
 						with{" "}
-						<span className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+						<span className="font-kalam font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
 							.Url
 						</span>
 					</p>

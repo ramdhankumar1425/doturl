@@ -4,11 +4,13 @@ config();
 import http from "http";
 
 import app from "./app.js";
-import connectDb from "./db/connect.js";
+import connectMongo from "./db/connectMongo.js";
+import connectRedis from "./db/connectRedis.js";
 import { logSystemInfo } from "./utils/logs.js";
 
 // connect db
-connectDb();
+connectMongo();
+connectRedis();
 
 const server = http.createServer(app);
 

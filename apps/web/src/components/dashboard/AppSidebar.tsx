@@ -5,11 +5,7 @@ import {
 	Home,
 	Settings,
 	Link as LinkIcon,
-	Key,
-	CreditCard,
-	ChartNoAxesGantt,
 	LogOut,
-	ChartColumn,
 } from "lucide-react";
 import {
 	Sidebar,
@@ -49,32 +45,9 @@ const dashboardItems = [
 		icon: LinkIcon,
 	},
 	{
-		title: "Analytics",
-		url: "#",
-		icon: ChartColumn,
-	},
-
-	{
 		title: "Settings",
 		url: "#",
 		icon: Settings,
-	},
-];
-const premiumItems = [
-	{
-		title: "API Keys",
-		url: "#",
-		icon: Key,
-	},
-	{
-		title: "Billing",
-		url: "#",
-		icon: CreditCard,
-	},
-	{
-		title: "Change Plan",
-		url: "#",
-		icon: ChartNoAxesGantt,
 	},
 ];
 
@@ -82,7 +55,7 @@ export default function AppSidebar() {
 	const user = useAuthStore((state) => state.user);
 
 	return (
-		<Sidebar>
+		<Sidebar className="h-[100vh]">
 			<SidebarHeader>
 				<Link
 					href={"/"}
@@ -103,23 +76,6 @@ export default function AppSidebar() {
 											<item.icon />
 											<span>{item.title}</span>
 										</Link>
-									</SidebarMenuButton>
-								</SidebarMenuItem>
-							))}
-						</SidebarMenu>
-					</SidebarGroupContent>
-				</SidebarGroup>
-				<SidebarGroup>
-					<SidebarGroupLabel>Premium</SidebarGroupLabel>
-					<SidebarGroupContent>
-						<SidebarMenu>
-							{premiumItems.map((item) => (
-								<SidebarMenuItem key={item.title}>
-									<SidebarMenuButton asChild>
-										<a href={item.url}>
-											<item.icon />
-											<span>{item.title}</span>
-										</a>
 									</SidebarMenuButton>
 								</SidebarMenuItem>
 							))}

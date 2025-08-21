@@ -19,7 +19,7 @@ import {
 	DropdownMenuSubTrigger,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Check } from "lucide-react";
+import { MoreHorizontal, Check, ExternalLink } from "lucide-react";
 import CreateNewDialog from "@/components/dashboard/CreateNewDialog";
 import DashboardHeader from "@/components/dashboard/Header";
 import { useEffect, useState } from "react";
@@ -61,9 +61,10 @@ export default function UrlsPage() {
 			/>
 			<div className="mt-4 sm:mt-10 px-2 sm:px-6">
 				<div className="px-4 py-2 max-w-[100vw] rounded-md border">
-					<Table className="">
+					<Table>
 						<TableHeader>
-							<TableRow>
+							<TableRow className="hover:bg-neutral-950">
+								<TableHead>Manage</TableHead>
 								<TableHead>Short URL</TableHead>
 								<TableHead>Original URL</TableHead>
 								<TableHead>Clicks</TableHead>
@@ -78,13 +79,19 @@ export default function UrlsPage() {
 						<TableBody>
 							{urls.map((url) => (
 								<TableRow
+									className="hover:bg-neutral-950"
 									key={url._id}
-									onClick={() =>
-										router.push(
-											`/dashboard/urls/${url._id}`
-										)
-									}
 								>
+									<TableCell className="w-20">
+										<Link
+											className="w-10 hover:bg-neutral-900 rounded-lg py-2 aspect-square flex items-center justify-center"
+											href={`/dashboard/urls/${url._id}`}
+											target="_blank"
+										>
+											<ExternalLink size={16} />
+										</Link>
+									</TableCell>
+
 									<TableCell className="font-medium">
 										<Link
 											href={`/${url.shortCode}`}
@@ -95,7 +102,7 @@ export default function UrlsPage() {
 											{url.shortCode}
 										</Link>
 									</TableCell>
-									<TableCell className="max-w-[250px] truncate">
+									<TableCell className="max-w-[100px] truncate">
 										<a
 											href={url.longUrl}
 											target="_blank"

@@ -3,19 +3,19 @@ import jwt from "jsonwebtoken";
 import { IAuthTokenPayload } from "types";
 import ENV from "../config/env.config.js";
 import {
-	ACCESS_TOKEN_EXPIRES_IN,
-	REFRESH_TOKEN_EXPIRES_IN,
+	ACCESS_TOKEN_TTL_MS,
+	REFRESH_TOKEN_TTL_MS,
 } from "../constants/index.js";
 
 export const generateAccessToken = (payload: IAuthTokenPayload): string => {
 	return jwt.sign(payload, ENV.JWT_ACCESS_SECRET, {
-		expiresIn: ACCESS_TOKEN_EXPIRES_IN,
+		expiresIn: ACCESS_TOKEN_TTL_MS,
 	});
 };
 
 export const generateRefreshToken = (payload: IAuthTokenPayload): string => {
 	return jwt.sign(payload, ENV.JWT_REFRESH_SECRET, {
-		expiresIn: REFRESH_TOKEN_EXPIRES_IN,
+		expiresIn: REFRESH_TOKEN_TTL_MS,
 	});
 };
 

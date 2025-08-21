@@ -14,6 +14,13 @@ import { sendApiResponse } from "../utils/sendApiResponse.js";
 import { withMongoTransaction } from "../utils/transactions.js";
 import { getRedirectUrl, getUserProfile } from "../utils/googleAuth.js";
 import { compareHash, hash } from "../utils/hashing.js";
+import {
+	REDIS_EXP_REFRESH_TOKEN_MAX_MS,
+	REFRESH_ROTATE_THRESHOLD_MS,
+	REFRESH_TOKEN_TTL_MS,
+} from "../constants/index.js";
+import getRedisKeys from "../utils/getRedisKeys.js";
+import redisClient from "../config/redis.config.js";
 
 export const googleRedirect = asyncHandler(async (req, res) => {
 	const redirectUrl = getRedirectUrl();
@@ -27,76 +34,73 @@ export const googleCallback = asyncHandler(async (req, res) => {
 
 	const profile = await getUserProfile(code);
 
-	const data = await withMongoTransaction(async (session) => {
-		// find user
-		let user = await UserModel.findOne({
-			$or: [
-				{ provider: "google", providerId: profile.id },
-				{
-					email: profile.email,
-				},
-			],
-		}).session(session);
+	// find user in db
+	let user = await UserModel.findOne({
+		$or: [
+			{ provider: "google", providerId: profile.id },
+			{
+				email: profile.email,
+			},
+		],
+	});
 
-		if (user) {
-			// if user exists with  different provider, link the accounts
-			if (user.provider !== "google" || user.providerId !== profile.id) {
-				user.provider = "google";
-				user.providerId = profile.id;
-				user.avatar = profile.picture;
+	if (user) {
+		// if user exists with  different provider, link the accounts
+		if (user.provider !== "google" || user.providerId !== profile.id) {
+			user.provider = "google";
+			user.providerId = profile.id;
+			user.avatar = profile.picture;
 
-				await user.save({ session });
-			}
-		} else {
-			// create new user
-			const [newUser] = await UserModel.create(
-				[
-					{
-						provider: "google",
-						providerId: profile.id,
-						email: profile.email,
-						name: profile.name,
-						avatar: profile.picture,
-					},
-				],
-				{ session }
-			);
-
-			user = newUser;
+			await user.save();
 		}
+	} else {
+		// create new user
+		const [newUser] = await UserModel.create([
+			{
+				provider: "google",
+				providerId: profile.id,
+				email: profile.email,
+				name: profile.name,
+				avatar: profile.picture,
+			},
+		]);
 
-		// generate tokens
-		const refreshToken = generateRefreshToken({ sub: user._id.toString() });
+		user = newUser;
+	}
 
-		// hash refresh token
-		const hashedRefreshToken = hashRefreshToken(refreshToken);
+	// generate refresh token
+	const refreshToken = generateRefreshToken({ sub: user._id.toString() });
+	const hashedRefreshToken = hashRefreshToken(refreshToken);
 
-		// delete all the previous tokens associated with this user
-		await RefreshTokenModel.deleteMany({ user: user._id });
+	await withMongoTransaction(async (session) => {
+		// revoke all the other tokens that this user had previously
+		await RefreshTokenModel.updateMany(
+			{ user: user._id },
+			{ revokedAt: new Date(), revokedReason: "re_auth" },
+			{
+				session,
+			}
+		);
 
-		// create or update refresh token (Note: Expired tokens already deleted with indexing)
+		// create (Note: Expired tokens already deleted with ttl index)
 		await RefreshTokenModel.create(
 			[
 				{
 					user: user._id,
 					token: hashedRefreshToken,
-					expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+					expiresAt: new Date(Date.now() + REFRESH_TOKEN_TTL_MS),
 				},
 			],
 			{ session }
 		);
-
-		return { refreshToken };
 	});
-
-	const { refreshToken } = data;
 
 	res.cookie("refreshToken", refreshToken, {
 		httpOnly: true,
 		secure: true,
 		sameSite: "none",
-		maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days in ms
 		domain: ENV.COOKIE_DOMAIN,
+		expires: new Date(Date.now() + REFRESH_TOKEN_TTL_MS),
 	});
 
 	res.redirect(`${ENV.CLIENT_URI}/dashboard`);
@@ -201,11 +205,12 @@ export const login = asyncHandler(async (req, res) => {
 });
 
 export const refresh = asyncHandler(async (req, res) => {
+	const start = performance.now();
 	const { refreshToken } = req.cookies;
-
 	if (!refreshToken)
-		throw new ApiError(401, "UNAUTHORIZED", "Invalid credentials.");
+		throw new ApiError(401, "UNAUTHORIZED", "Credentials required.");
 
+	// verify JWT
 	let tokenPayload: IAuthTokenPayload | null = null;
 	try {
 		tokenPayload = verifyRefreshToken(refreshToken) as IAuthTokenPayload;
@@ -224,87 +229,159 @@ export const refresh = asyncHandler(async (req, res) => {
 			);
 	}
 
-	// hash the token
+	// find in cache or db
+	let storedToken: {
+		expiresAt: string;
+	} | null = null;
+
 	const hashedRefreshToken = hashRefreshToken(refreshToken);
 
-	const data = await withMongoTransaction(async (session) => {
-		// find the stored token
-		const storedToken = await RefreshTokenModel.findOne({
+	// check redis cache
+	const redisKey = getRedisKeys.authRefresh(
+		tokenPayload.sub,
+		hashedRefreshToken
+	);
+
+	const cached = await redisClient.get(redisKey);
+
+	if (cached) {
+		// cache hit
+
+		storedToken = JSON.parse(cached);
+		const end = performance.now();
+		console.log("refresh Cache Hit TTE:", end - start);
+	} else {
+		// cache miss
+
+		// db lookup
+		const tokenDoc = await RefreshTokenModel.findOne({
 			user: tokenPayload.sub,
 			token: hashedRefreshToken,
-		}).session(session);
+		});
+		if (!tokenDoc)
+			throw new ApiError(401, "UNAUTHORIZED", "Invalid credentials.");
 
-		// Verify token exists, not expired, and not revoked
-		if (
-			!storedToken ||
-			storedToken.expiresAt < new Date()
-			// || storedToken.revokedAt
-		)
-			throw new ApiError(
-				401,
-				"UNAUTHORIZED",
-				"Invalid or expired refresh token."
+		storedToken = {
+			expiresAt: tokenDoc.expiresAt.toISOString(),
+		};
+
+		// cache it in redis
+		const ttl = tokenDoc.expiresAt.getTime() - Date.now();
+		if (ttl > 0) {
+			await redisClient.set(redisKey, JSON.stringify(storedToken), {
+				expiration: {
+					type: "PX",
+					value: Math.min(ttl, REDIS_EXP_REFRESH_TOKEN_MAX_MS),
+				},
+			});
+		}
+
+		const end = performance.now();
+		console.log("refresh Cache Miss TTE:", end - start);
+	}
+
+	// verify expiry
+	if (new Date(storedToken!.expiresAt) < new Date()) {
+		// NOTE: Expired tokens will be auto deleted from db using ttl index
+		// delete from cache
+		await redisClient.del(redisKey);
+
+		throw new ApiError(401, "REFRESH_TOKEN_EXPIRED", "Token expired.");
+	}
+
+	// find the user
+	const user = await UserModel.findById(tokenPayload.sub);
+	if (!user) throw new ApiError(404, "NOT_FOUND", "User no longer exists.");
+
+	// decide rotation
+	const expiresAt = new Date(storedToken!.expiresAt);
+	const timeLeftMs = expiresAt.getTime() - Date.now();
+	const shouldRotate = true;
+	// const shouldRotate = timeLeftMs < REFRESH_ROTATE_THRESHOLD_MS;
+
+	if (shouldRotate) {
+		// rotate
+		const freshRefreshToken = generateRefreshToken({
+			sub: user._id.toString(),
+		});
+		const hashedFreshRefreshToken = hashRefreshToken(freshRefreshToken);
+		const freshRefreshTokenExpiresAt = new Date(
+			Date.now() + REFRESH_TOKEN_TTL_MS
+		);
+
+		await withMongoTransaction(async (session) => {
+			// save in db
+			await RefreshTokenModel.create(
+				[
+					{
+						user: user._id,
+						token: hashedFreshRefreshToken,
+						expiresAt: freshRefreshTokenExpiresAt,
+					},
+				],
+				{ session }
 			);
 
-		// find user
-		const user = await UserModel.findById(storedToken.user).session(
-			session
-		);
-
-		if (!user)
-			throw new ApiError(404, "NOT_FOUND", "User no longer exists.");
-
-		// generate new tokens (token rotation)
-		const newAccessToken = generateAccessToken({
-			sub: user._id.toString(),
-		});
-		const newRefreshToken = generateRefreshToken({
-			sub: user._id.toString(),
-		});
-		const newHashedRefreshToken = hashRefreshToken(newRefreshToken);
-
-		// revoke old refresh token
-		await RefreshTokenModel.updateOne(
-			{ _id: storedToken._id },
-			{
-				revokedAt: new Date(),
-				revokedReason: "token_rotation",
-			}
-		).session(session);
-
-		// create new refresh token
-		await RefreshTokenModel.create(
-			[
+			// revoke the old one
+			await RefreshTokenModel.updateOne(
 				{
 					user: user._id,
-					token: newHashedRefreshToken,
-					expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+					token: hashedRefreshToken,
 				},
-			],
-			{ session }
+				{
+					revokedAt: new Date(),
+					revokedReason: "token_rotation",
+				},
+				{
+					session,
+				}
+			);
+		});
+
+		// update redis cache
+		await redisClient.del(redisKey);
+		await redisClient.set(
+			getRedisKeys.authRefresh(
+				user._id.toString(),
+				hashedFreshRefreshToken
+			),
+			JSON.stringify({
+				expiresAt: freshRefreshTokenExpiresAt.toISOString(),
+			}),
+			{
+				expiration: {
+					type: "PX",
+					value: Math.min(
+						freshRefreshTokenExpiresAt.getTime() - Date.now(),
+						REDIS_EXP_REFRESH_TOKEN_MAX_MS
+					), // 24hrs
+				},
+			}
 		);
 
-		return { newAccessToken, newRefreshToken, user };
-	});
+		// set-cookie with expiry
+		res.cookie("refreshToken", freshRefreshToken, {
+			httpOnly: true,
+			secure: true,
+			sameSite: "none",
+			domain: ENV.COOKIE_DOMAIN,
+			expires: freshRefreshTokenExpiresAt, // align browser with db
+		});
+	}
 
-	const { newAccessToken, newRefreshToken, user } = data;
-
-	res.cookie("refreshToken", newRefreshToken, {
-		httpOnly: true,
-		secure: true,
-		sameSite: "none",
-		maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days in ms
-		domain: ENV.COOKIE_DOMAIN,
-	});
+	// always issue a fresh accessToken
+	const freshAccessToken = generateAccessToken({ sub: user._id.toString() });
 
 	const response: IApiResponse<{
 		accessToken: string;
 		user: IUser;
 	}> = {
 		success: true,
-		message: "Tokens refreshed.",
+		message: shouldRotate
+			? "Tokens refreshed (rotated)."
+			: "Tokens refreshed.",
 		payload: {
-			accessToken: newAccessToken,
+			accessToken: freshAccessToken,
 			user: {
 				_id: user._id.toString(),
 				provider: user.provider,
