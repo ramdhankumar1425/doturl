@@ -4,6 +4,7 @@ import * as LogMiddleware from "./log.middleware.js";
 import * as RateLimitMiddleware from "./rateLimit.middleware.js";
 import * as ValidateMiddleware from "./validate.middleware.js";
 import * as UserAgentMiddleware from "./userAgent.middleware.js";
+import * as MetricsMiddleware from "./metrics.middleware.js";
 
 export {
 	AuthMiddleware,
@@ -12,4 +13,5 @@ export {
 	RateLimitMiddleware,
 	ValidateMiddleware,
 	UserAgentMiddleware,
+	MetricsMiddleware,
 };

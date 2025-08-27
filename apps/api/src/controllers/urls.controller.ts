@@ -1,7 +1,7 @@
 import { IApiResponse, IAuthTokenPayload, IUrl, IUserAgent } from "types";
 import ENV from "../config/env.config.js";
 import { UrlModel, UrlHitModel, UserModel } from "../models/index.js";
-import redisClient from "../config/redis.config.js";
+import { cacheClient } from "../config/redis.config.js";
 
 import { getShortCode } from "../utils/shortCode.js";
 import { asyncHandler } from "../utils/errors/asyncHandler.js";
@@ -119,7 +119,7 @@ export const redirect = asyncHandler(async (req, res) => {
 	const userAgent: IUserAgent = res.locals.userAgent;
 
 	// check redis cache
-	const cached = await redisClient.get(getRedisKeys.urlRedirect(shortCode));
+	const cached = await cacheClient.get(getRedisKeys.urlRedirect(shortCode));
 
 	// cache hit
 	if (cached) {
@@ -189,7 +189,7 @@ export const redirect = asyncHandler(async (req, res) => {
 	});
 
 	// store in cache
-	await redisClient.set(
+	await cacheClient.set(
 		getRedisKeys.urlRedirect(shortCode),
 		JSON.stringify({ _id: url._id.toString(), longUrl: url.longUrl }),
 		{

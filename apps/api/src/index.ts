@@ -7,10 +7,13 @@ import app from "./app.js";
 import connectMongo from "./db/connectMongo.js";
 import connectRedis from "./db/connectRedis.js";
 import { logSystemInfo } from "./utils/logs.js";
+import initRedisSubs from "./metrics/subscriber.js";
 
-// connect db
+// connect dbs
 connectMongo();
-connectRedis();
+await connectRedis();
+// register redis subscribers
+initRedisSubs();
 
 const server = http.createServer(app);
 

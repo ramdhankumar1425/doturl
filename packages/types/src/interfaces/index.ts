@@ -44,18 +44,6 @@ export interface IUserAgent {
 	};
 }
 
-export interface IServiceHealth {
-	service: string;
-	version: string;
-	uptime: number;
-	memory: {
-		rss: string;
-		heapUsed: string;
-		heapTotal: string;
-	};
-	dbStatus: "connected" | "connecting" | "disconnected" | "unknown";
-}
-
 export interface IUrl {
 	_id: string;
 	longUrl: string;
@@ -64,4 +52,34 @@ export interface IUrl {
 	createdAt: string;
 	expiresAt?: string | null;
 	status: "active" | "paused" | "expired";
+}
+
+export interface IApiHealth {
+	name: string;
+	version: string;
+	uptime: number;
+	memory: {
+		rss: string;
+		heapUsed: string;
+		heapTotal: string;
+	};
+	mongoStatus: "connected" | "connecting" | "disconnected" | "unknown";
+	redisStatus: {
+		cacheClient: "connected" | "connecting" | "disconnected";
+		pubClient: "connected" | "connecting" | "disconnected";
+		subClient: "connected" | "connecting" | "disconnected";
+	};
+}
+
+export interface IApiMetric {
+	serverName: string;
+	totalRequests: number;
+	avgResponseMs: number;
+	p95ResponseMs: number;
+	ramUsage: {
+		totalMb: number;
+		usedMb: number;
+	};
+	cpuPercentUsage: number;
+	timestamp: number;
 }

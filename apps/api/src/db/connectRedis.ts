@@ -1,21 +1,42 @@
-import redisClient from "../config/redis.config.js";
+import { cacheClient, pubClient, subClient } from "../config/redis.config.js";
 
 async function connectRedis() {
 	try {
-		redisClient.on("error", (err) =>
-			console.log("Redis Client Error:", err)
-		);
-		redisClient.on("connect", () =>
-			console.log("Initiating connection to the Redis.")
-		);
-		redisClient.on("ready", () => console.log("Redis is ready."));
-		redisClient.on("reconnecting", () =>
-			console.log("Redis Client is trying to reconnect to.")
-		);
+		const clients = [
+			{
+				name: "Cache client",
+				client: cacheClient,
+			},
+			{
+				name: "Pub client",
+				client: pubClient,
+			},
+			{
+				name: "Sub client",
+				client: subClient,
+			},
+		];
 
-		await redisClient.connect();
+		await Promise.all(
+			clients.map(async ({ name, client }) => {
+				client.on("error", (err) =>
+					console.log(`[Redis] ${name} Error:`, err)
+				);
+				client.on("connect", () =>
+					console.log(`[Redis] Initiating connection to ${name}.`)
+				);
+				client.on("ready", () =>
+					console.log(`[Redis] ${name} is ready.`)
+				);
+				client.on("reconnecting", () =>
+					console.log(`[Redis] ${name} is trying to reconnect.`)
+				);
+
+				await client.connect();
+			})
+		);
 	} catch (error) {
-		console.error("[connectRedis.ts] Error in connectRedis:", error);
+		console.error("[Redis] Error in connectRedis:", error);
 	}
 }
 

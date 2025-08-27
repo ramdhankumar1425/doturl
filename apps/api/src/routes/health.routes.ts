@@ -1,18 +1,23 @@
 import { Router } from "express";
 import mongoose from "mongoose";
-import { IApiResponse, IServiceHealth } from "types";
+import { IApiResponse, IApiHealth } from "types";
 import ENV from "../config/env.config.js";
+import { cacheClient, pubClient, subClient } from "../config/redis.config.js";
 
 import { asyncHandler } from "../utils/errors/asyncHandler.js";
 import { sendApiResponse } from "../utils/sendApiResponse.js";
+import {
+	getCpuUsageSnapshot,
+	getSystemUptime,
+} from "../utils/resourceUsage.js";
 
 const router = Router();
 
 router.get(
 	"/",
 	asyncHandler(async (req, res) => {
-		// Uptime
-		const uptime = process.uptime(); // seconds
+		const uptime = getSystemUptime();
+		const cpuUsage = await getCpuUsageSnapshot();
 
 		// Memory usage
 		const memoryUsage = process.memoryUsage();
@@ -22,25 +27,36 @@ router.get(
 			heapTotal: `${(memoryUsage.heapTotal / 1024 / 1024).toFixed(2)} MB`,
 		};
 
-		let dbStatus: "connected" | "connecting" | "disconnected" | "unknown" =
-			"unknown";
+		let mongoStatus:
+			| "connected"
+			| "connecting"
+			| "disconnected"
+			| "unknown" = "unknown";
 
-		if (mongoose.connection.readyState === 1) dbStatus = "connected";
-		else if (mongoose.connection.readyState === 2) dbStatus = "connecting";
-		else dbStatus = "disconnected";
+		if (mongoose.connection.readyState === 1) mongoStatus = "connected";
+		else if (mongoose.connection.readyState === 2)
+			mongoStatus = "connecting";
+		else mongoStatus = "disconnected";
+
+		const redisStatus = {
+			cacheClient: getRedisStatus(cacheClient),
+			pubClient: getRedisStatus(pubClient),
+			subClient: getRedisStatus(subClient),
+		};
 
 		const response: IApiResponse<{
-			health: IServiceHealth;
+			health: IApiHealth;
 		}> = {
 			success: true,
 			message: "Health check successful.",
 			payload: {
 				health: {
-					service: ENV.SERVICE_NAME,
+					name: ENV.SERVER_NAME,
 					version: ENV.APP_VERSION,
 					uptime,
 					memory,
-					dbStatus,
+					mongoStatus,
+					redisStatus,
 				},
 			},
 		};
@@ -48,5 +64,13 @@ router.get(
 		sendApiResponse(res, 200, response);
 	})
 );
+
+function getRedisStatus(
+	client: any
+): "disconnected" | "connected" | "connecting" {
+	if (!client.isOpen) return "disconnected";
+	if (client.isReady) return "connected";
+	return "connecting";
+}
 
 export default router;

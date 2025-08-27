@@ -20,7 +20,7 @@ import {
 	REFRESH_TOKEN_TTL_MS,
 } from "../constants/index.js";
 import getRedisKeys from "../utils/getRedisKeys.js";
-import redisClient from "../config/redis.config.js";
+import { cacheClient } from "../config/redis.config.js";
 
 export const googleRedirect = asyncHandler(async (req, res) => {
 	const redirectUrl = getRedirectUrl();
@@ -242,7 +242,7 @@ export const refresh = asyncHandler(async (req, res) => {
 		hashedRefreshToken
 	);
 
-	const cached = await redisClient.get(redisKey);
+	const cached = await cacheClient.get(redisKey);
 
 	if (cached) {
 		// cache hit
@@ -268,7 +268,7 @@ export const refresh = asyncHandler(async (req, res) => {
 		// cache it in redis
 		const ttl = tokenDoc.expiresAt.getTime() - Date.now();
 		if (ttl > 0) {
-			await redisClient.set(redisKey, JSON.stringify(storedToken), {
+			await cacheClient.set(redisKey, JSON.stringify(storedToken), {
 				expiration: {
 					type: "PX",
 					value: Math.min(ttl, REDIS_EXP_REFRESH_TOKEN_MAX_MS),
@@ -284,7 +284,7 @@ export const refresh = asyncHandler(async (req, res) => {
 	if (new Date(storedToken!.expiresAt) < new Date()) {
 		// NOTE: Expired tokens will be auto deleted from db using ttl index
 		// delete from cache
-		await redisClient.del(redisKey);
+		await cacheClient.del(redisKey);
 
 		throw new ApiError(401, "REFRESH_TOKEN_EXPIRED", "Token expired.");
 	}
@@ -339,8 +339,8 @@ export const refresh = asyncHandler(async (req, res) => {
 		});
 
 		// update redis cache
-		await redisClient.del(redisKey);
-		await redisClient.set(
+		await cacheClient.del(redisKey);
+		await cacheClient.set(
 			getRedisKeys.authRefresh(
 				user._id.toString(),
 				hashedFreshRefreshToken

@@ -4,7 +4,7 @@ import ENV from "../config/env.config.js";
 
 export const logSystemInfo = (PORT: string) => {
 	// service info
-	const serviceName = ENV.SERVICE_NAME;
+	const serverName = ENV.SERVER_NAME;
 	const appVersion = ENV.APP_VERSION;
 
 	// System information
@@ -28,7 +28,7 @@ export const logSystemInfo = (PORT: string) => {
 			colors.blue("Service Info: ") +
 			colors.white("Service Name:") +
 			" " +
-			colors.yellow(serviceName) +
+			colors.yellow(serverName) +
 			" " +
 			colors.white("App Version:") +
 			" " +

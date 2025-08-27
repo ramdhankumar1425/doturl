@@ -1,5 +1,7 @@
-import redis from "redis";
+import { createClient } from "redis";
 
-const redisClient = redis.createClient({ url: process.env.REDIS_URI });
+const url = process.env.REDIS_URI;
 
-export default redisClient;
+export const cacheClient = createClient({ url });
+export const pubClient = createClient({ url });
+export const subClient = createClient({ url });
