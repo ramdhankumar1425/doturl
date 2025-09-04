@@ -20,7 +20,7 @@ const urlHitSchema = new Schema({
 	},
 	browser: {
 		name: String,
-		type: String,
+		kind: String, // can't use type here
 	},
 	os: {
 		name: String,

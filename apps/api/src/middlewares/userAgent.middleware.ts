@@ -13,12 +13,18 @@ export const parseUserAgent: RequestHandler = asyncHandler(
 
 		const userAgent: IUserAgent = {
 			device: result.device.type || "desktop",
-			os: result.os,
-			browser: result.browser,
+			os: {
+				name: result.os.name || "unknown",
+				version: result.os.version || "unknown",
+			},
+			browser: {
+				name: result.browser.name || "unknown",
+				kind: result.browser.type || "unknown",
+			},
 		};
 
 		res.locals.userAgent = userAgent;
 
 		next();
-	}
+	},
 );

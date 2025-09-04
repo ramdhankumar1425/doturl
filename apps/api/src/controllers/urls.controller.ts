@@ -1,14 +1,13 @@
 import { IApiResponse, IAuthTokenPayload, IUrl, IUserAgent } from "types";
 import ENV from "../config/env.config.js";
 import { UrlModel, UrlHitModel, UserModel } from "../models/index.js";
-import { cacheClient } from "../config/redis.config.js";
+import { cacheClient, queueClient } from "../config/redis.config.js";
 
 import { getShortCode } from "../utils/shortCode.js";
 import { asyncHandler } from "../utils/errors/asyncHandler.js";
 import { sendApiResponse } from "../utils/sendApiResponse.js";
 import { ApiError } from "../utils/errors/ApiError.js";
 import { generateAnonId } from "../utils/tokens.js";
-import { withMongoTransaction } from "../utils/transactions.js";
 import getRedisKeys from "../utils/getRedisKeys.js";
 
 export const shortUrlAnon = asyncHandler(async (req, res) => {
@@ -114,7 +113,6 @@ export const shortUrl = asyncHandler(async (req, res) => {
 });
 
 export const redirect = asyncHandler(async (req, res) => {
-	const start = performance.now();
 	const { shortCode } = req.params;
 	const userAgent: IUserAgent = res.locals.userAgent;
 
@@ -126,84 +124,85 @@ export const redirect = asyncHandler(async (req, res) => {
 		const { _id, longUrl } = JSON.parse(cached); // _id and longUrl are cached together
 
 		// update analytics in background
-		process.nextTick(async () => {
-			await withMongoTransaction(async (session) => {
-				// update clicks count in url
-				await UrlModel.updateOne(
-					{
-						_id,
-					},
-					{
-						$inc: { totalHits: 1 },
-					},
-					{
-						session,
-					}
-				);
+		process.nextTick(() => {
+			(async () => {
+				try {
+					// update clicks count in url
+					await UrlModel.updateOne(
+						{
+							_id,
+						},
+						{
+							$inc: { totalHits: 1 },
+						},
+					);
 
-				// create a url hit
-				await UrlHitModel.create([
-					{
-						url: _id,
-						ipAddress: req.socket.remoteAddress,
-						device: userAgent.device,
-						os: userAgent.os,
-						browser: userAgent.browser,
-					},
-				]);
-			});
+					// push the hit in redis list
+					await queueClient.rPush(
+						"url:hits",
+						JSON.stringify({
+							url: _id,
+							ipAddress: req.socket.remoteAddress,
+							device: userAgent.device,
+							os: userAgent.os,
+							browser: userAgent.browser,
+						}),
+					);
+				} catch (error) {
+					throw new ApiError(
+						500,
+						"INTERNAL_SERVER_ERROR",
+						"Update analytics failed.",
+					);
+				}
+			})();
 		});
-
-		const end = performance.now();
-		console.log("Cache Hit TTE:", end - start);
 
 		res.redirect(longUrl);
 		return;
-	}
-	// cache miss
+	} else {
+		// cache miss
+		// find url in db
+		const url = await UrlModel.findOne({ shortCode });
 
-	// find url in db
-	const url = await UrlModel.findOne({ shortCode });
-
-	if (!url) {
-		res.redirect(`${ENV.CLIENT_URI}/not-found`);
-		return;
-	}
-
-	// update analytics
-	await withMongoTransaction(async (session) => {
-		// update clicks count
-		url.totalHits = url.totalHits + 1;
-		await url.save();
-
-		// create a url hit
-		await UrlHitModel.create([
-			{
-				url: url._id,
-				ipAddress: req.socket.remoteAddress,
-				device: userAgent.device,
-				os: userAgent.os,
-				browser: userAgent.browser,
-			},
-		]);
-	});
-
-	// store in cache
-	await cacheClient.set(
-		getRedisKeys.urlRedirect(shortCode),
-		JSON.stringify({ _id: url._id.toString(), longUrl: url.longUrl }),
-		{
-			expiration: {
-				type: "EX",
-				value: 60 * 60, // 1hr
-			},
+		if (!url) {
+			res.redirect(`${ENV.CLIENT_URI}/not-found`);
+			return;
 		}
-	);
 
-	const end = performance.now();
-	console.log("Cache Miss TTE:", end - start);
+		// update analytics in background
+		process.nextTick(async () => {
+			// update clicks count
+			url.totalHits = url.totalHits + 1;
+			await url.save();
 
-	res.redirect(url.longUrl);
+			// push the hit in redis list
+			await queueClient.rPush(
+				"url:hits",
+				JSON.stringify({
+					url: url._id.toString(),
+					ipAddress: req.socket.remoteAddress,
+					device: userAgent.device,
+					os: userAgent.os,
+					browser: userAgent.browser,
+				}),
+			);
+		});
+
+		// store in cache
+		await cacheClient.set(
+			getRedisKeys.urlRedirect(shortCode),
+			JSON.stringify({ _id: url._id.toString(), longUrl: url.longUrl }),
+			{
+				expiration: {
+					type: "EX",
+					value: 60 * 60, // 1hr
+				},
+			},
+		);
+
+		res.redirect(url.longUrl);
+	}
 });
 
 export const getAllUrlsAnon = asyncHandler(async (req, res) => {
@@ -263,7 +262,7 @@ export const getAllUrlsAnon = asyncHandler(async (req, res) => {
 					totalHits,
 					createdAt,
 					expiresAt,
-				})
+				}),
 			),
 		},
 	};
@@ -309,7 +308,7 @@ export const getAllUrls = asyncHandler(async (req, res) => {
 					totalHits,
 					createdAt,
 					expiresAt,
-				})
+				}),
 			),
 		},
 	};

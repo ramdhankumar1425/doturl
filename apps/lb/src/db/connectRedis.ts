@@ -1,17 +1,8 @@
-import {
-	cacheClient,
-	pubClient,
-	subClient,
-	queueClient,
-} from "../config/redis.config.js";
+import { pubClient, subClient } from "../config/redis.config.js";
 
 async function connectRedis() {
 	try {
 		const clients = [
-			{
-				name: "Cache client",
-				client: cacheClient,
-			},
 			{
 				name: "Pub client",
 				client: pubClient,
@@ -19,10 +10,6 @@ async function connectRedis() {
 			{
 				name: "Sub client",
 				client: subClient,
-			},
-			{
-				name: "Queue client",
-				client: queueClient,
 			},
 		];
 

@@ -3,17 +3,14 @@ config();
 
 import http from "http";
 
-import connectDb from "./db/connect.js";
+import connectRedis from "./db/connectRedis.js";
 import app from "./app.js";
-import { initSocketServer } from "./socket.js";
 import { logSystemInfo } from "./utils/logs.js";
 
-// connect db
-connectDb();
+// connect redis clients
+await connectRedis();
 
 const server = http.createServer(app);
-
-initSocketServer(server);
 
 const PORT = process.env.PORT || "3000";
 

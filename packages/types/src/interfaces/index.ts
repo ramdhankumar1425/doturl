@@ -36,7 +36,7 @@ export interface IUserAgent {
 	device?: string;
 	browser: {
 		name?: string;
-		type?: string;
+		kind?: string;
 	};
 	os: {
 		name?: string;
@@ -83,3 +83,5 @@ export interface IApiMetric {
 	cpuPercentUsage: number;
 	timestamp: number;
 }
+
+export interface IServer {}

@@ -2,7 +2,5 @@ import { createClient } from "redis";
 
 const url = process.env.REDIS_URI;
 
-export const cacheClient = createClient({ url });
 export const pubClient = createClient({ url });
 export const subClient = createClient({ url });
-export const queueClient = createClient({ url });

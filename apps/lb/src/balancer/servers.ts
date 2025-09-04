@@ -1,5 +1,3 @@
-import { ServerModel } from "../models/index.js";
-
 interface IServer {
 	_id: string;
 	url: string;
@@ -14,9 +12,8 @@ let currentIndex = 1; // Round-Robin Approach
 
 export const refreshServers = async () => {
 	try {
-		const servers = await ServerModel.find({
-			healthy: true,
-			status: "online",
+		const response = await fetch(`${process.env.ADMIN_API_URI}/servers`, {
+			method: "GET",
 		});
 
 		SERVERS = servers.map((s) => ({

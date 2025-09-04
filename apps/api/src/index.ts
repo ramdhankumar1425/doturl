@@ -8,6 +8,7 @@ import connectMongo from "./db/connectMongo.js";
 import connectRedis from "./db/connectRedis.js";
 import { logSystemInfo } from "./utils/logs.js";
 import initRedisSubs from "./metrics/subscriber.js";
+import initJobs from "./jobs/index.js";
 
 // connect dbs
 connectMongo();
@@ -27,3 +28,6 @@ server
 	.addListener("listening", () => {
 		logSystemInfo(PORT);
 	});
+
+// init all crons
+initJobs();
